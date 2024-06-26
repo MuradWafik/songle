@@ -2,15 +2,26 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>My Spotify Profile</title>
+        <title>Songle - Home</title>
         <script src="src/script.js" type="module"></script>
         <link rel="stylesheet" href="style.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     </head>
     <body>
-      <h1>Display your Spotify profile data</h1>
+      <h1>Songle</h1>
+      <h4>How to play: Your goal is to connect 2 artists together by using different artists they have featured on songs with</h4>
 
-      <section id="profile">
+    <div id = formItems>
+      <form>
+        <input type="search" placeholder="Enter Artist Name" id="searchArtist">
+        <input type="submit" value="Submit">
+      </form>
+      <div id = "parentForArtists">
+
+      </div>
+    </div>
+
+      <!-- <section id="profile">
       <h2>Logged in as <span id="displayName"></span></h2>
       <span id="avatar"></span>
       <ul>
@@ -20,6 +31,6 @@
           <li>Link: <a id="url" href="#"></a></li>
           <li>Profile Image: <span id="imgUrl"></span></li>
       </ul>
-      </section>
+      </section> -->
     </body>
 </html>
