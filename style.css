@@ -13,4 +13,74 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+#websiteTitle{
+  display: flex;
+  font-size: 3em;
+  justify-content: center;
+  align-items: center;
+}
+
+#artistNameDiv{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: solid black 0.1em;
+
+  /* width: 20em; */
+  
+}
+
+form{
+  width: fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: solid white 0.1em;
+  
+  /* font-size: 1.25em; */
+  /* width: 6em; */
+}
+#searchArtist{
+  margin-left: 0.25em;
+  /* font-weight: 300; */
+  /* font-size: 1.25em; */
+  /* width: 16em; */
+
+  
+  
+  
+  font-size: 1em;
+
+} 
+
+#parentForArtists{
+  /* padding-top: 2em; */
+  /* position: absolute; */
+  /* display: flex; */
+  /* justify-content: center; */
+  /* z-index: 99 !important; */
+  /* align-items: center; */
+  /* flex-direction: column; */
+  
+}
+#formItems{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-size: 1.25em;
+  
+  /* width: 20em; */
+  
+}
+
+img{
+  height: 10em!important;
+  width: 10em!important;
+}
+
+#formItems *{
+  width: 20em;
+}
 
