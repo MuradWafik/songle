@@ -6,26 +6,39 @@
         <script src="src/script.js" type="module"></script>
         <link rel="stylesheet" href="style.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+        <datalist id = "artistList">
+  
+        </datalist>
     </head>
     <body>
       <h1 id = "websiteTitle">Songle</h1>
       <h4>How to play: Your goal is to connect 2 artists together by using different artists they have featured on songs with</h4>
 
-    <div id = formItems>
-
-
-
-     
-        <input type="search" placeholder="Enter Artist Name" id="searchArtist" autocomplete="off" aria-autocomplete="none">
-        <!-- <input type="submit" value="Submit"> -->
- 
-
       <div id = "parentForArtists">
 
+        <div id = "parentDivWithTitle" class = "Starting">
+            <h2>Starting Artist</h2> 
+        </div>
+        <div id = "parentDivWithTitle" class = "Target">
+            <h2>Target Artist</h2> 
+        </div>
+
+      </div>
+           
+      <div id = "form">
+        <input type="search" placeholder="Enter Artist Name" id="searchArtist" autocomplete="off" aria-autocomplete="none" role="combobox" list = "artistList">
+        <button type="submit" id = "submitGuess">Submit</button>
+
+        
       </div>
 
-    </div>
+      <!-- <input type="submit" value="Submit"> -->
+
+
 
 
     </body>
+
+
 </html>

@@ -41,46 +41,62 @@ form{
   /* font-size: 1.25em; */
   /* width: 6em; */
 }
+#form{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin-top: 2em;
+  
+}
+
+#form *{
+  font-size: 2em;
+}
 #searchArtist{
-  margin-left: 0.25em;
+  /* margin-left: 0.25em; */
   /* font-weight: 300; */
   /* font-size: 1.25em; */
   /* width: 16em; */
 
   
-  
-  
-  font-size: 1em;
+  width: 20em;
 
 } 
 
 #parentForArtists{
-  /* padding-top: 2em; */
-  /* position: absolute; */
-  /* display: flex; */
-  /* justify-content: center; */
-  /* z-index: 99 !important; */
-  /* align-items: center; */
-  /* flex-direction: column; */
-  
-}
-#formItems{
+  padding-top: 2em; 
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   flex-direction: column;
-  font-size: 1.25em;
-  
-  /* width: 20em; */
   
 }
 
 img{
-  height: 10em!important;
-  width: 10em!important;
+  height: 2em!important;
+  width: 2em!important;
 }
 
-#formItems *{
-  width: 20em;
+.ArtistImageAndName{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: min-content;
+  width: auto;
+}
+.ArtistImageAndName h3{
+  padding-left: 1em;
+  margin-bottom: 0.25em;
+  margin-top: 0.25em;
 }
 
+#StartingArtist{
+  position: sticky;
+}
+
+
+h2{
+  margin-bottom: 0.25em;
+  margin-top: 0.25em;
+}
