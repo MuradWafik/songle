@@ -33,12 +33,28 @@
 
       </div>
            
-      <div id = "form">
-        <input type="search" placeholder="Enter Artist Name" id="searchArtist" autocomplete="off" aria-autocomplete="none" role="combobox" list = "artistList">
-        <button type="submit" id = "submitGuess">Submit</button>
+      <div id = "formParent">
+        <div id = "form">
+            <input type="search" placeholder="Enter Artist Name" id="searchArtist" autocomplete="off" aria-autocomplete="none" role="combobox" list = "artistList">
+            <button type="submit" id = "submitGuess">Submit</button>
+        </div>
 
+
+      </div>
+
+      <div id = "buttonOptions">
+        <button type="button" class = "bottomButton">Regenerate Artists</button>
+
+        <div id = "hintParent">
+           <button type="button" id ="hintButton" class = "bottomButton" >Hint (Random Possible Artist)</button> 
+
+           <h4 id = "hintsUsedText">Hints Used: 0</h4>
+            <!-- <p>Hints Used: 0</p> -->
+        </div>
+        
         
       </div>
+      
 
       <!-- <input type="submit" value="Submit"> -->
 

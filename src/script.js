@@ -7,13 +7,16 @@ document.head.appendChild(jQueryScript);
 
 const randomArtistLimit = 50;
 const artistHistoryID = [];
-const artistNameToIdMap = new Map()
+const artistNameToIdMap = new Map();
+const artistIdToNameMap = new Map();
 
 artistNameToIdMap.set("kendrick lamar", "2YZyLoL8N0Wb9xBt1NhZWg");
 
-let correctGuesses = 1;
+let correctGuesses = 0;
+let hintsUsed = 0;
 let lastArtistId = null;
-const lastArtistCollaborations = [];
+// const lastArtistCollaborations = [];
+const lastArtistCollaborations = new Set();
 
 function getRandomSearch() { // allows getting a random artist from the spotify search
    // A list of all characters that can be chosen.
@@ -57,31 +60,51 @@ async function getToken() {
 }
 
 
-function updateFeaturedArtistArray(newArtistList){
-    lastArtistCollaborations.length = 0;
+function updateMaps(artistName, artistId){
+    let filteredName = artistName.toLowerCase().trim();
+    if(!artistNameToIdMap.has(filteredName)){
+        // map of the id and name, if name is not in it, add it
+        artistNameToIdMap.set(filteredName, artistId);
+        artistIdToNameMap.set(artistId, filteredName);
+    }
 
-    const albumsList = newArtistList.items;
+}
 
+function wonGame(){
+    console.log("congrats u won")
+}
 
+function updateFeaturedArtistArray(newArtistList, hadFeatures){
+    // lastArtistCollaborations.length = 0;
+    lastArtistCollaborations.clear()
+    // const albumsList = hadFeatures ? newArtistList.artists : newArtistList.items
+    let albumsList
+    if(hadFeatures){
+        albumsList = newArtistList.items;
+    }
+    else{
+        albumsList = newArtistList.artists
+    }
+    
           
     // loops through the appeared on from spotify checking for a match on the ids
     for (const feature in albumsList) {
         const albumsArtistList = albumsList[feature].artists;
-        //single artist, and not already added
-        if(albumsArtistList.length == 1 && !albumsArtistList.includes(albumsArtistList[0].id)){
-            lastArtistCollaborations.push(albumsArtistList[0].id);
-        }
 
-        else{ // collab albums like we dont trust you have multiple artist
-            for(const artistIndex in albumsArtistList){
-                const _thisArtist = albumsArtistList[artistIndex];
-                if(!albumsArtistList.includes(_thisArtist.id)){
-                lastArtistCollaborations.push(_thisArtist.id);
+
+        for(const artistIndex in albumsArtistList){
+            const _thisArtist = albumsArtistList[artistIndex];
+
+            if(!albumsArtistList.includes(_thisArtist.id) && _thisArtist.name.toLowerCase().trim() !== "various artists" && _thisArtist.name.toLowerCase().trim() !== "summer hits"){
+                // lastArtistCollaborations.push(_thisArtist.id);
+                lastArtistCollaborations.add(_thisArtist.id)
+
+                updateMaps(_thisArtist.name, _thisArtist.id);
+                if(_thisArtist.id == lastArtistId){
+                    wonGame() // checks if the artist they added collabed with the target artist
                 }
-
             }
-        }
-    
+        } 
     }
     console.log(lastArtistCollaborations);
 
@@ -135,6 +158,8 @@ function addGuessedArtistInfo(artistID){
     const token = localStorage.getItem("token");
     getArtistById(token, artistID).then( artistObject =>{
         let imageAndNameDiv = document.createElement("div");
+
+        imageAndNameDiv.id = `Guess${correctGuesses}`
         imageAndNameDiv.classList += "ArtistImageAndName";
 
         let image = document.createElement("img");
@@ -151,17 +176,13 @@ function addGuessedArtistInfo(artistID){
 
         // updateFeaturedArtistArray(artistObject);
         getAppearsOnTracks(token, 50, artistHistoryID.at(-1)).then(newArtistList =>{
-
-            updateFeaturedArtistArray(newArtistList);
+            // console.log()
+            // console.log(`features? ${newArtistList[1]}`)
+            updateFeaturedArtistArray(newArtistList[0], newArtistList.at(1));
         })
         
     })
     // adds latest info before the goal artist
-
-
-
-
-
 
 }
 
@@ -180,11 +201,8 @@ async function getArtist(token, artistName, limit, offset = 0){
     for(const key in artistReturning.artists.items ){
         const _artist = artistReturning.artists.items[key];
         let nameToAdd = _artist.name;
-        nameToAdd = nameToAdd.toLowerCase()
-        if(!artistNameToIdMap.has(nameToAdd)){
-            // map of the id and name, if name is not in it, add it
-            artistNameToIdMap.set(nameToAdd, _artist.id);
-        }
+        nameToAdd = nameToAdd.toLowerCase().trim();
+        updateMaps(nameToAdd, _artist.id);
     }
     return artistReturning;
 }
@@ -193,14 +211,11 @@ async function getArtist(token, artistName, limit, offset = 0){
 function generateStartAndGoalArtists(){
     const token = localStorage.getItem("token")
     getArtist(token, getRandomSearch(), randomArtistLimit, getRandomOffset()).then( artist=>{
-        // console.log(artist.artists.items + "ARTIST");
         // prevArtistiD = artist.artists.items[0].id;
         // console.log(prevArtistiD);
-        // addKeyArtistInfo(artist.artists.items[0], "Starting"); // the first artist found
         addStartingArtist(artist.artists.items[0]);
         artistHistoryID.push(artist.artists.items[0].id);
-
-
+        updateMaps(artist.artists.items[0].name, artist.artists.items[0].id)
 
     }).then(() =>
 
@@ -210,23 +225,19 @@ function generateStartAndGoalArtists(){
 
             getAppearsOnTracks(token, 50, artistHistoryID.at(-1)).then(newArtistList =>{
 
-            updateFeaturedArtistArray(newArtistList);
+            // updateFeaturedArtistArray(newArtistList, true);
+            // console.log(`features? ${newArtistList[1]}`)
+            updateFeaturedArtistArray(newArtistList[0], newArtistList.at(1));
         })
     }).then(() =>
         {
 
-            
         getArtist(token, getRandomSearch(), randomArtistLimit, getRandomOffset()).then( artist=>{
             lastArtistId = artist.artists.items[0].id 
             console.log(lastArtistId);
-            // addKeyArtistInfo(artist.artists.items[0], "Target") // the first artist found
             addTargetArtist(artist.artists.items[0]);
         })
-
     })
-    // let currentArtist = artistNameToIdMap.get("kendrick lamar")
-    // let prevArtistiD = "1RyvyyTE3xzB2ZywiAwp0i";
-    
 }
 
 getToken().then(response => {
@@ -240,9 +251,33 @@ getToken().then(response => {
 
 
 async function getAppearsOnTracks(token, limit, newArtistId){
-    // console.log(`token ${token}`);
     // see what tracks the artist has appeared on to know if they are able to link
     const result = await fetch(`https://api.spotify.com/v1/artists/${newArtistId}/albums?include_groups=appears_on&market=US&limit=${limit}&offset=0`, {
+        method: "GET", headers: { Authorization: `Bearer ${token}` },
+    });
+    const list = await result.json();
+
+    if(list.items.length !== 0){
+        console.log("ORIGINAL")
+        console.log(list)
+        return [list, true]; // they have featured on tracks, return the list regularly
+    }
+
+    
+    // const similar = await getSimilarArtists(token, newArtistId);
+    // console.log(`using similar, ${similar.artists}`);
+    console.log("using similar")
+    getSimilarArtists(token, newArtistId).then( newList =>{
+        // console.log(newList.artists);
+        console.log("NEW LIST")
+        console.log(newList);
+        return [newList, false];
+    })
+    // return similar
+}
+
+async function getSimilarArtists(token, artistId){
+    const result = await fetch(`https://api.spotify.com/v1/artists/${artistId}/related-artists`, {
         method: "GET", headers: { Authorization: `Bearer ${token}` },
     });
     return await result.json();
@@ -253,38 +288,52 @@ async function getAppearsOnTracks(token, limit, newArtistId){
 //     });
 // });
 
+function showWrongGuessMessage(){
+    const errorMessage = document.createElement("p");
+    errorMessage.textContent = "Invalid Name, Please choose a name found on spotify";
+    errorMessage.id = "wrongNameError";
+
+    // $("#wrongNameError")
+    $("#formParent")[0].appendChild(errorMessage);
+}
+
 $(document).ready(function(){
     $("#submitGuess").click(function (e) { 
         e.preventDefault();
         const token = localStorage.getItem("token");
 
         const guess = ($("#searchArtist").val()).toLowerCase().trim();
-        const oldArtist = artistHistoryID.at(-1);
+        // const oldArtist = artistHistoryID.at(-1);
+
         const newArtist = artistNameToIdMap.get(guess);
         let matchExists = false;
         if(artistNameToIdMap.has(guess)){
-            console.log("good guess")
-            // what they entered is a valid input
-
-            if(lastArtistCollaborations.includes(newArtist)){
-
-                    matchExists = true;
-                    // prevArtistiD = newArtist;
-                    addGuessedArtistInfo(newArtist);
-                    artistHistoryID.push(newArtist);
-                    // console.log(artistHistoryID);
-                    // console.log("exists")  
-            }
-                console.log(`match exists: ${matchExists}`)
+            // console.log("good guess")
             
+            // what they entered is a valid input
+            if($("#wrongNameError").length !== 0){ // if the error message does exist
+                $("#wrongNameError")[0].textContent = ""; // removes the error message
+            }
 
+            if(lastArtistCollaborations.has(newArtist)){
+                correctGuesses++; // how much guesses theyve taken to beat the game in
+                matchExists = true;
+                // prevArtistiD = newArtist;
+
+                addGuessedArtistInfo(newArtist); // display the new artist
+                artistHistoryID.push(newArtist); // store id in list
+                updateMaps(guess,newArtist )
+            }
+            else{
+                wrongGuessAnimation();
+            }
+            // console.log(`match exists: ${matchExists}`)
         }
 
         else{ // invalid guess show cue 
-            console.log("wrong guess")
+            showWrongGuessMessage();
         }
     });
-    
 });
 
 $(document).ready( function(){
@@ -319,4 +368,45 @@ $(document).ready( function(){
           });
     })
 });
+
+function selectRandomArtist(){
+    // "various artists";
+
+    let collabsSetToArray = Array.from(lastArtistCollaborations)
+  
+        let randomArtist = collabsSetToArray.at(Math.floor(Math.random()*collabsSetToArray.length))
+        let chosenName = artistIdToNameMap.get(randomArtist);
+        // some artists have "various artists" listed as a feature, so this avoids it being picked
+        
+
+    return chosenName;
+}
+
+$(document).ready(function () {
+    $("#hintButton").click(function (e) { 
+        e.preventDefault();
+        hintsUsed++;
+        $("#hintsUsedText")[0].textContent = `Hints Used: ${hintsUsed}`;
+        const randomArtistChosen = selectRandomArtist();
+        console.log(randomArtistChosen);
+        
+    });
+});
+
+function wrongGuessAnimation(){
+    let form = $("#form");
+    form[0].animate(
+    [
+        { transform: 'translateX(-2em)'},
+        { transform: 'translateX(0em)'},
+        { transform: 'translateX(2em)'},
+        { transform: 'translateX(0em)'}
+        // { color: '#431236', offset: 0.3 },
+        // { transform: 'rotate(360deg) translate3D(-50%, -50%, 0)', color: '#000' }
+      ], {
+        duration: 350,
+        iterations: 1
+      }
+    );
+}
 
