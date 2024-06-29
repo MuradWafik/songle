@@ -6,12 +6,14 @@ jQueryScript.setAttribute('src', 'https://ajax.googleapis.com/ajax/libs/jquery/3
 document.head.appendChild(jQueryScript);
 
 const randomArtistLimit = 50;
-const artistsGuessByID = [];
+const artistHistoryID = [];
 const artistNameToIdMap = new Map()
 
 artistNameToIdMap.set("kendrick lamar", "2YZyLoL8N0Wb9xBt1NhZWg");
-let prevArtistiD = "";
+
 let correctGuesses = 1;
+let lastArtistId = null;
+const lastArtistCollaborations = [];
 
 function getRandomSearch() { // allows getting a random artist from the spotify search
    // A list of all characters that can be chosen.
@@ -54,48 +56,70 @@ async function getToken() {
   return await response.json();
 }
 
-function addKeyArtistInfo(artist, specialText){
-    // let artistDescription = document.createElement("h2");
 
-    // shows image and name of starting artist
-    const form = $("#parentForArtists");
+function updateFeaturedArtistArray(newArtistList){
+    lastArtistCollaborations.length = 0;
 
-    // let parentDivWithTitle = document.createElement("div");
-    // parentDivWithTitle.id = "parentDivWithTitle";
+    const albumsList = newArtistList.items;
 
+
+          
+    // loops through the appeared on from spotify checking for a match on the ids
+    for (const feature in albumsList) {
+        const albumsArtistList = albumsList[feature].artists;
+        //single artist, and not already added
+        if(albumsArtistList.length == 1 && !albumsArtistList.includes(albumsArtistList[0].id)){
+            lastArtistCollaborations.push(albumsArtistList[0].id);
+        }
+
+        else{ // collab albums like we dont trust you have multiple artist
+            for(const artistIndex in albumsArtistList){
+                const _thisArtist = albumsArtistList[artistIndex];
+                if(!albumsArtistList.includes(_thisArtist.id)){
+                lastArtistCollaborations.push(_thisArtist.id);
+                }
+
+            }
+        }
+    
+    }
+    console.log(lastArtistCollaborations);
+
+}
+
+function addStartingArtist(artist){
+    const divForStarter = $(".Starting");
     let imageAndNameDiv = document.createElement("div");
     imageAndNameDiv.classList += "ArtistImageAndName";
-
-
-
     let image = document.createElement("img");
     image.src = artist.images[0].url;
     
     let artistName = document.createElement("h3");
     artistName.textContent = artist.name;
 
-    // makes description of goal and start
-
-    // artistDescription.textContent = specialText + ":";
-    imageAndNameDiv.id = specialText.replace(/\s/g, '');
-    
-
-    // form[0].appendChild(artistDescription);
-
-    // div with their name and image
     imageAndNameDiv.appendChild(image);
     imageAndNameDiv.appendChild(artistName);
 
-    const parentDivWithTitle = $(`.${specialText}`);
-
-    // parentDivWithTitle[0].appendChild(artistDescription);
-    parentDivWithTitle[0].appendChild(imageAndNameDiv);
-
-    form[0].appendChild(parentDivWithTitle[0]);
-    
-
+    divForStarter[0].appendChild(imageAndNameDiv);
 
 }
+
+function addTargetArtist(artist){
+    const divForStarter = $(".Target");
+    let imageAndNameDiv = document.createElement("div");
+    imageAndNameDiv.classList += "ArtistImageAndName";
+    let image = document.createElement("img");
+    image.src = artist.images[0].url;
+    
+    let artistName = document.createElement("h3");
+    artistName.textContent = artist.name;
+
+    imageAndNameDiv.appendChild(image);
+    imageAndNameDiv.appendChild(artistName);
+
+    divForStarter[0].appendChild(imageAndNameDiv);
+}
+
 
 async function getArtistById(token, artistId){
     
@@ -124,6 +148,12 @@ function addGuessedArtistInfo(artistID){
     
         // let newArtistDiv = document.create
         $(".Target").before(imageAndNameDiv);
+
+        // updateFeaturedArtistArray(artistObject);
+        getAppearsOnTracks(token, 50, artistHistoryID.at(-1)).then(newArtistList =>{
+
+            updateFeaturedArtistArray(newArtistList);
+        })
         
     })
     // adds latest info before the goal artist
@@ -164,16 +194,33 @@ function generateStartAndGoalArtists(){
     const token = localStorage.getItem("token")
     getArtist(token, getRandomSearch(), randomArtistLimit, getRandomOffset()).then( artist=>{
         // console.log(artist.artists.items + "ARTIST");
-        prevArtistiD = artist.artists.items[0].id;
-        console.log(prevArtistiD);
-        addKeyArtistInfo(artist.artists.items[0], "Starting"); // the first artist found
+        // prevArtistiD = artist.artists.items[0].id;
+        // console.log(prevArtistiD);
+        // addKeyArtistInfo(artist.artists.items[0], "Starting"); // the first artist found
+        addStartingArtist(artist.artists.items[0]);
+        artistHistoryID.push(artist.artists.items[0].id);
 
-    }
-    ).then(() =>
+
+
+    }).then(() =>
+
         { // only starts search after the first artist is found so that it doesnt show the goal artist before the first
-        getArtist(token, getRandomSearch(), randomArtistLimit, getRandomOffset()).then( artist=>{
+            const token = localStorage.getItem("token")
+            console.log(`prev artist id ${artistHistoryID.at(-1)}`);
 
-            addKeyArtistInfo(artist.artists.items[0], "Target") // the first artist found
+            getAppearsOnTracks(token, 50, artistHistoryID.at(-1)).then(newArtistList =>{
+
+            updateFeaturedArtistArray(newArtistList);
+        })
+    }).then(() =>
+        {
+
+            
+        getArtist(token, getRandomSearch(), randomArtistLimit, getRandomOffset()).then( artist=>{
+            lastArtistId = artist.artists.items[0].id 
+            console.log(lastArtistId);
+            // addKeyArtistInfo(artist.artists.items[0], "Target") // the first artist found
+            addTargetArtist(artist.artists.items[0]);
         })
 
     })
@@ -193,6 +240,7 @@ getToken().then(response => {
 
 
 async function getAppearsOnTracks(token, limit, newArtistId){
+    // console.log(`token ${token}`);
     // see what tracks the artist has appeared on to know if they are able to link
     const result = await fetch(`https://api.spotify.com/v1/artists/${newArtistId}/albums?include_groups=appears_on&market=US&limit=${limit}&offset=0`, {
         method: "GET", headers: { Authorization: `Bearer ${token}` },
@@ -211,59 +259,26 @@ $(document).ready(function(){
         const token = localStorage.getItem("token");
 
         const guess = ($("#searchArtist").val()).toLowerCase().trim();
-        const oldArtist = prevArtistiD;
+        const oldArtist = artistHistoryID.at(-1);
         const newArtist = artistNameToIdMap.get(guess);
         let matchExists = false;
         if(artistNameToIdMap.has(guess)){
             console.log("good guess")
             // what they entered is a valid input
 
-            getAppearsOnTracks(token, 50, oldArtist).then(result => {
+            if(lastArtistCollaborations.includes(newArtist)){
 
-                const albumsList = result.items;
-                // let artistsTheyHaveFeaturedWith = [];
-
-          
-                // loops through the appeared on from spotify checking for a match on the ids
-                for (const feature in albumsList) {
-                    if(matchExists){
-                        // stops search if the found that they have a song together
-                        break;
-                    }
-        
-        
-                        // const featureObj = ;
-                        const albumsArtistList = albumsList[feature].artists;
-                        if(albumsArtistList.length == 1){
-                            // console.log(`found artist id ${albumsArtistList[0].id} and desired is ${newArtist}`)
-                            
-                            if(albumsArtistList[0].id == newArtist){
-                                matchExists = true;
-                            }  
-                        }
-                        else{ // collab albums like we dont trust you have multiple artist
-                            for(const artistIndex in albumsArtistList){
-                                const _thisArtist = albumsArtistList[artistIndex];
-        
-                                if(_thisArtist.id == newArtist){
-                                    matchExists = true;
-                                    
-                                    break; // breaks the inner for loop
-                                } 
-                            }
-                        }
-        
-                    if(matchExists){
-                        prevArtistiD = newArtist;
-                        addGuessedArtistInfo(newArtist);
-                        // console.log("exists")
-                    }                 
-                }
+                    matchExists = true;
+                    // prevArtistiD = newArtist;
+                    addGuessedArtistInfo(newArtist);
+                    artistHistoryID.push(newArtist);
+                    // console.log(artistHistoryID);
+                    // console.log("exists")  
+            }
                 console.log(`match exists: ${matchExists}`)
-            })
+            
+
         }
-
-
 
         else{ // invalid guess show cue 
             console.log("wrong guess")
