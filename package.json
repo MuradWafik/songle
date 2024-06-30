@@ -12,6 +12,7 @@
     "vite": "^5.3.1"
   },
   "dependencies": {
-    "buffer": "^6.0.3"
+    "buffer": "^6.0.3",
+    "jquery-editable-select": "^2.2.5"
   }
 }

@@ -140,5 +140,23 @@ option:hover{
   display: flex;
   flex-direction: column;
   align-items: center;
+}
 
+#guessesUsed{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.parentWithArrow{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#arrow{
+  padding: 0;
+  margin: 0;
+  font-size:3em;
+  margin-top: -0.5em;
 }

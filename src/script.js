@@ -158,8 +158,7 @@ function addGuessedArtistInfo(artistID){
     const token = localStorage.getItem("token");
     getArtistById(token, artistID).then( artistObject =>{
         let imageAndNameDiv = document.createElement("div");
-
-        imageAndNameDiv.id = `Guess${correctGuesses}`
+        // imageAndNameDiv.id = `Guess${correctGuesses}`
         imageAndNameDiv.classList += "ArtistImageAndName";
 
         let image = document.createElement("img");
@@ -168,11 +167,30 @@ function addGuessedArtistInfo(artistID){
         let artistNameItem = document.createElement("h3");
         artistNameItem.textContent = artistObject.name;
 
+
+        let arrow = document.createElement("p")
+        arrow.innerHTML = "&#8595;";
+        arrow.id = "arrow"
+
+        let parentWithArrow = document.createElement("div");
+        parentWithArrow.id =  `Guess${correctGuesses}`;
+        parentWithArrow.classList += "parentWithArrow";
+        
+
+        
+
+
         imageAndNameDiv.appendChild(image);
         imageAndNameDiv.appendChild(artistNameItem);
+        // imageAndNameDiv.appendChild(arrow);
+        parentWithArrow.append(imageAndNameDiv);
+        parentWithArrow.appendChild(arrow);
+
+
+
     
         // let newArtistDiv = document.create
-        $(".Target").before(imageAndNameDiv);
+        $(".Target").before(parentWithArrow);
 
         // updateFeaturedArtistArray(artistObject);
         getAppearsOnTracks(token, 50, artistHistoryID.at(-1)).then(newArtistList =>{
@@ -288,9 +306,9 @@ async function getSimilarArtists(token, artistId){
 //     });
 // });
 
-function showWrongGuessMessage(){
+function showWrongGuessMessage(message){
     const errorMessage = document.createElement("p");
-    errorMessage.textContent = "Invalid Name, Please choose a name found on spotify";
+    errorMessage.textContent = message
     errorMessage.id = "wrongNameError";
 
     // $("#wrongNameError")
@@ -315,14 +333,21 @@ $(document).ready(function(){
                 $("#wrongNameError")[0].textContent = ""; // removes the error message
             }
 
-            if(lastArtistCollaborations.has(newArtist)){
-                correctGuesses++; // how much guesses theyve taken to beat the game in
-                matchExists = true;
-                // prevArtistiD = newArtist;
+            if(lastArtistCollaborations.has(newArtist)){ // have a featured 
+                if(artistHistoryID.includes(newArtist)){
+                    //havent previously guessed this artist so they dont go into endless cycle
+                    showWrongGuessMessage("Please guess an artist not already included")
 
-                addGuessedArtistInfo(newArtist); // display the new artist
-                artistHistoryID.push(newArtist); // store id in list
-                updateMaps(guess,newArtist )
+                }
+                else{
+                    correctGuesses++; // how much guesses theyve taken to beat the game in
+                    $("#guessesUsed")[0].textContent = `Guesses: ${correctGuesses}`
+                    // prevArtistiD = newArtist;
+
+                    addGuessedArtistInfo(newArtist); // display the new artist
+                    artistHistoryID.push(newArtist); // store id in list
+                    updateMaps(guess,newArtist );
+                }
             }
             else{
                 wrongGuessAnimation();
@@ -331,7 +356,7 @@ $(document).ready(function(){
         }
 
         else{ // invalid guess show cue 
-            showWrongGuessMessage();
+            showWrongGuessMessage("Invalid Name, Please choose a name found on spotify");
         }
     });
 });
@@ -410,3 +435,38 @@ function wrongGuessAnimation(){
     );
 }
 
+$(document).ready(function () {
+    $("#undoButton").click(function (e) { 
+        e.preventDefault();
+        undoGuess()
+        
+    });
+});
+
+function undoGuess(){
+
+    if(correctGuesses <= 0){ // cant undo if they havent guesses anything
+        return;
+    }
+
+    const artistDivToRemove = $(`#Guess${correctGuesses}`);
+    artistDivToRemove.remove();
+
+    artistHistoryID.pop(); // store id in list
+
+    correctGuesses--;
+    $("#guessesUsed")[0].textContent = `Guesses: ${correctGuesses}`
+
+    const token = localStorage.getItem("token")
+
+    getAppearsOnTracks(token, 50, artistHistoryID.at(-1)).then(newArtistList =>{
+        // console.log()
+        // console.log(`features? ${newArtistList[1]}`)
+        updateFeaturedArtistArray(newArtistList[0], newArtistList.at(1));
+
+    })
+        
+   
+    
+
+}
