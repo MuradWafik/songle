@@ -13,6 +13,7 @@
     </head>
     <body>
       <h1 id = "websiteTitle">Songle</h1>
+      <hr>
       <h4>How to play: Your goal is to connect 2 artists together by using different artists they have featured on songs with</h4>
 
       <h1 id = "guessesUsed">Guesses: 0</h1>
@@ -44,17 +45,53 @@
       </div>
 
       <div id = "buttonOptions">
-        <button type="button" class = "bottomButton">Regenerate Artists</button>
-        <button type="button" id = "undoButton" class = "bottomButton">Undo</button>
-        <div id = "hintParent">
-           <button type="button" id ="hintButton" class = "bottomButton" >Hint (Random Possible Artist)</button> 
 
-           <h4 id = "hintsUsedText">Hints Used: 0</h4>
+
+        <div id="giveUpButton" class = "buttonParent">
+            <button type="button" class = "bottomButton">Give Up</button>
+
+        </div>
+        
+
+        <div class="buttonParent">
+            
+            <div>
+                <h4 class = "buttonUsedText">Undos Remaining:</h4>
+                <span class="dot" id="undoDot1"></span>
+                <span class="dot" id="undoDot2"></span>
+                <span class="dot" id="undoDot3"></span>
+                <span class="dot" id="undoDot4"></span>
+                <span class="dot" id="undoDot5"></span>
+           </div>
+
+           <button type="button" id = "undoButton" class = "bottomButton">Undo</button>
+           
+
+        </div>
+        
+        <div class = "buttonParent hints">
+            
+            
+            
+            <span class="hintPopup">Popup text...</span>
+            <div id = "hintText">
+                
+                <h4 class = "buttonUsed">Hints Remaining:</h4>
+                <span class="dot" id="hintDot1"></span>
+                <span class="dot" id="hintDot2"></span>
+                <span class="dot" id="hintDot3"></span>
+                <span class="dot" id="hintDot4"></span>
+                <span class="dot" id="hintDot5"></span>
+            </div>
+
+            <button type="button" id ="hintButton" class = "bottomButton" >Hint</button> 
+           
+
             <!-- <p>Hints Used: 0</p> -->
         </div>
         
         
-      </div>
+    </div>
       
 
       <!-- <input type="submit" value="Submit"> -->
