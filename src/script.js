@@ -9,7 +9,7 @@ const randomArtistLimit = 50;
 const artistHistoryID = [];
 const artistNameToIdMap = new Map();
 const artistIdToNameMap = new Map();
-const MAXCOLLABLISTSIZE = 500;
+const MAXCOLLABLISTSIZE = 100;
 
 artistNameToIdMap.set("kendrick lamar", "2YZyLoL8N0Wb9xBt1NhZWg");
 
@@ -18,10 +18,12 @@ let hintsRemaining = 5;
 let undosRemaining = 5;
 
 let lastArtistId = null;
-let gameActive = true;
+// let canUseButtons = false; //
+
 // const lastArtistCollaborations = [];
 const lastArtistCollaborations = new Set();
 let lastArtistCollabsHintsRemoved = [];
+let canPressEnterToSubmitGuess = false;
 
 function getRandomSearch() { // allows getting a random artist from the spotify search
    // A list of all characters that can be chosen.
@@ -85,7 +87,8 @@ function endGame(){
 function updateFeaturedArtistArray(newArtistList){
     // lastArtistCollaborations.length = 0;
 
-    
+    console.log(newArtistList); // after guess the new artist list is undefined
+
     lastArtistCollaborations.clear();
     
     
@@ -113,7 +116,6 @@ function updateFeaturedArtistArray(newArtistList){
             }
         } 
     }
-
     lastArtistCollabsHintsRemoved = [... Array.from(lastArtistCollaborations)];
     // console.log(lastArtistCollaborations);
 
@@ -165,6 +167,10 @@ async function getArtistById(token, artistId){
 
 function addGuessedArtistInfo(artistID){
     const token = localStorage.getItem("token");
+
+    allowButtonsToBeUsed(false); // buttons arent synced yet, so just disables them
+    enableWrongGuessMessage(false);
+
     getArtistById(token, artistID).then( artistObject =>{
         let imageAndNameDiv = document.createElement("div");
         // imageAndNameDiv.id = `Guess${correctGuesses}`
@@ -201,9 +207,14 @@ function addGuessedArtistInfo(artistID){
         // let newArtistDiv = document.create
         $(".Target").before(parentWithArrow);
 
+
+        $('.hintPopup').fadeOut();
+
         // updateFeaturedArtistArray(artistObject);
-        getFullAppearsOnTracks(token, 50, artistHistoryID.at(-1)).then(newArtistList =>{
-            updateFeaturedArtistArray(newArtistList.items);
+        getFullAppearsOnTracks(token, artistID).then(newArtistList =>{
+            updateFeaturedArtistArray(newArtistList);
+
+            allowButtonsToBeUsed(true);
         })
         
     })
@@ -234,7 +245,10 @@ async function getArtist(token, artistName, limit, offset = 0){
 
 
 function generateStartAndGoalArtists(){
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
+
+    allowButtonsToBeUsed(false);  // cant use buttons before initial artists are picked
+    
     getArtist(token, getRandomSearch(), randomArtistLimit, getRandomOffset()).then( artist=>{
         // prevArtistiD = artist.artists.items[0].id;
         
@@ -262,9 +276,10 @@ function generateStartAndGoalArtists(){
 
             getArtist(token, getRandomSearch(), randomArtistLimit, getRandomOffset()).then( artist=>{
                 lastArtistId = artist.artists.items[0].id 
-                
                 addTargetArtist(artist.artists.items[0]);
         })
+
+        allowButtonsToBeUsed(true);
     })
 }
 
@@ -274,52 +289,33 @@ getToken().then(response => {
 
     // })
     generateStartAndGoalArtists();
-
-
-    
-
-   
-
-    
-
-    
-    
+        
 });
-
-
 
 async function getFullAppearsOnTracks(token, artistID){
     let offsetForThisRotation = 0;
     let fullCollabList = [];
-    while(offsetForThisRotation <= MAXCOLLABLISTSIZE){ // const to stop at 500 collabs regardless
+    while(offsetForThisRotation < MAXCOLLABLISTSIZE){ // const to stop at 500 collabs regardless
         try {
             let collabList = await getAppearsOnTracks(token, 50, artistID, offsetForThisRotation)
             
             if(collabList != undefined){
-                console.log(collabList);
+                // console.log(collabList);
                 fullCollabList = fullCollabList.concat(collabList.items)
             }
             
-            
             offsetForThisRotation+=50
-
         } 
         catch{
-            break;
-            
+            break;  
         }
-
     }
 
-    console.log(fullCollabList);
+    // console.log(fullCollabList);
     return await fullCollabList
-
-    
 }
 
-
 async function getAppearsOnTracks(token, limit, newArtistId, offset = 0){
-
     try {
         const result = await fetch(`https://api.spotify.com/v1/artists/${newArtistId}/albums?include_groups=appears_on&market=US&limit=${limit}&offset=${offset}`, {
             method: "GET", headers: { Authorization: `Bearer ${token}` },
@@ -342,57 +338,24 @@ async function getAppearsOnTracks(token, limit, newArtistId, offset = 0){
 //     });
 // });
 
-function showWrongGuessMessage(message){
-    const errorMessage = document.createElement("p");
-    errorMessage.textContent = message
-    errorMessage.id = "wrongNameError";
+function enableWrongGuessMessage(state, text = null){
+    // if they entered a name that doesnt exist, or was already guessed, enables text for it, and making the message reflect the error
+    if(state){
+        $("#wrongNameError").fadeIn();
+        $("#wrongNameError")[0].textContent = text;
+    }
 
-    // $("#wrongNameError")
-    $("#formParent")[0].appendChild(errorMessage);
+    else{
+        $("#wrongNameError").fadeOut();
+    }
 }
 
 $(document).ready(function(){
     $("#submitGuess").click(function (e) { 
         e.preventDefault();
-        const token = localStorage.getItem("token");
 
-        const guess = ($("#searchArtist").val()).toLowerCase().trim();
-        // const oldArtist = artistHistoryID.at(-1);
-
-        const newArtist = artistNameToIdMap.get(guess);
-        let matchExists = false;
-        if(artistNameToIdMap.has(guess)){
-            
-            // what they entered is a valid input
-            if($("#wrongNameError").length !== 0){ // if the error message does exist
-                $("#wrongNameError")[0].textContent = ""; // removes the error message
-            }
-
-            if(lastArtistCollaborations.has(newArtist)){ // have a featured 
-                if(artistHistoryID.includes(newArtist)){
-                    //havent previously guessed this artist so they dont go into endless cycle
-                    showWrongGuessMessage("Please guess an artist not already included")
-
-                }
-                else{
-                    correctGuesses++; // how much guesses theyve taken to beat the game in
-                    $("#guessesUsed")[0].textContent = `Guesses: ${correctGuesses}`
-                    // prevArtistiD = newArtist;
-
-                    addGuessedArtistInfo(newArtist); // display the new artist
-                    artistHistoryID.push(newArtist); // store id in list
-                    updateMaps(guess,newArtist );
-                }
-            }
-            else{
-                wrongGuessAnimation();
-            }
-            
-        }
-
-        else{ // invalid guess show cue 
-            showWrongGuessMessage("Invalid Name, Please choose a name found on spotify");
-        }
+        submitGuess();
+        
     });
 });
 
@@ -414,11 +377,12 @@ $(document).ready( function(){
             // calls the get artist search function on spotify, with a limit of 7
 
             const artistsFound = artist.artists.items // the object storing the actual individual artists
+
             for (const _artist in artistsFound){
                 const thisArtist = artistsFound[_artist]
                 // the individual index of each
 
-                let artistOption = `<option data-value = ${thisArtist.id} value = ${thisArtist.name}>`;
+                let artistOption = `<option value = "${thisArtist.name}">`;
 
                 if(!fullArtistList.includes(artistOption)){
                     fullArtistList += artistOption;
@@ -527,9 +491,137 @@ function undoGuess(){
 
 
 
-    getFullAppearsOnTracks(token, 50, artistHistoryID.at(-1)).then(newArtistList =>{
+    getFullAppearsOnTracks(token, artistHistoryID.at(-1)).then(newArtistList =>{
         updateFeaturedArtistArray(newArtistList);
 
     })
 
 }
+
+$(document).ready(function () {
+
+    allowButtonsToBeUsed(true);
+    
+    
+});
+
+function allowButtonsToBeUsed(buttonsCanBeUsed){        
+    $("#submitGuess")[0].disabled = !buttonsCanBeUsed;
+    $("#searchArtist")[0].disabled = !buttonsCanBeUsed;
+
+    canPressEnterToSubmitGuess = buttonsCanBeUsed; // the enter press returns if this is false
+
+    if(buttonsCanBeUsed){
+        $(".bottomButton").removeAttr("disabled");
+    
+    }
+
+    else{
+        $('.bottomButton').attr('disabled', true);
+         // the whole class is disabled, cant access the disabled element
+    }
+}
+
+
+function showGameOverPopup(){
+    // $("#gameOverScreen")[0]
+    $("#gameOverScreen").fadeIn();
+    $("#gameOverGuesses")[0].textContent = `Total Guesses: ${correctGuesses}`;
+    allowButtonsToBeUsed(false);
+    
+
+}
+
+function hideGameOverPopup(){
+    $("#gameOverScreen").fadeOut();
+}
+
+
+$(document).ready(function () {
+    $("#giveUpButton").click(function (e) { 
+        e.preventDefault();
+        showGameOverPopup();
+        
+    });
+
+    $(window).click(function (e) { 
+        e.preventDefault();
+        if (e.target == $("#gameOverScreen")[0]) {
+            // modal.style.display = "none";
+            hideGameOverPopup();
+          }
+        
+    });
+});
+
+
+$(document).ready(function () {
+    $(".close").click(function (e) { 
+        e.preventDefault();
+        hideGameOverPopup();
+        
+    });
+});
+
+
+$(document).ready(function () {
+    $("#searchArtist").keypress(function(event) {  // instead of pressing submit button, they just just press the enter key to submit a guess
+        let keycode = event.keyCode || event.which;
+        if(keycode == '13' && canPressEnterToSubmitGuess) {
+
+            submitGuess()
+            // alert('You pressed a "enter" key in input');    
+        }
+    });
+});
+
+
+function submitGuess(){
+    const guess = ($("#searchArtist").val()).toLowerCase().trim();
+        // const oldArtist = artistHistoryID.at(-1);
+
+        const newArtist = artistNameToIdMap.get(guess);
+        let matchExists = false;
+        if(artistNameToIdMap.has(guess)){
+            
+            // what they entered is a valid input
+            if($("#wrongNameError").length !== 0){ // if the error message does exist
+                $("#wrongNameError")[0].textContent = ""; // removes the error message
+            }
+
+            if(lastArtistCollaborations.has(newArtist)){ // have a featured 
+                if(artistHistoryID.includes(newArtist)){
+                    //havent previously guessed this artist so they dont go into endless cycle
+                    enableWrongGuessMessage(true, "Please guess an artist not already included")
+
+                }
+                else{
+                    correctGuesses++; // how much guesses theyve taken to beat the game in
+                    $("#guessesUsed")[0].textContent = `Guesses: ${correctGuesses}`
+                    // prevArtistiD = newArtist;
+
+                    addGuessedArtistInfo(newArtist); // display the new artist
+                    artistHistoryID.push(newArtist); // store id in list
+                    updateMaps(guess, newArtist);
+                }
+            }
+
+            else{ // artist does exist, wasnt already guessed, but the no feature between them exists
+                wrongGuessAnimation();
+            }
+            
+        }
+
+        else{ // artist does not exist
+            enableWrongGuessMessage(true, "Invalid Name, Please choose a name found on spotify");
+        }
+}
+
+$(document).ready(function () {
+    $("#playAgain").click(function (e) { 
+        e.preventDefault();
+
+        generateStartAndGoalArtists(); // regenerates the artists for the user
+        hideGameOverPopup();
+    });
+});

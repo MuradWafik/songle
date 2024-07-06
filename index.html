@@ -10,78 +10,93 @@
         <datalist id = "artistList">
   
         </datalist>
+
     </head>
+
     <body>
-      <h1 id = "websiteTitle">Songle</h1>
-      <hr>
-      <h4>How to play: Your goal is to connect 2 artists together by using different artists they have featured on songs with</h4>
+        <h1 id = "websiteTitle">Songle</h1>
+        <hr>
+        <h4>How to play: Your goal is to connect 2 artists together by using different artists they have featured on songs with</h4>
 
-      <h1 id = "guessesUsed">Guesses: 0</h1>
-      <div id = "parentForArtists">
+        <h1 id = "guessesUsed">Guesses: 0</h1>
 
-        <div id = "parentDivWithTitle" class = "Starting">
-            <h2>Starting Artist</h2> 
-            
+
+        <div id="gameOverScreen" class="modal">
+
+            <div class="modal-content">
+              <div class = "modalHeader">
+                  <h2>Songle</h2>
+                  <span class="close">&times;</span>
+            </div>
+
+            <h3 style = "display: flex; justify-content: center; align-items: center;">Game Over</h3>
+            <h4 id = "gameOverGuesses">Total Guesses: </h4> 
+            <button type="button" id = "playAgain">Play Again</button>
         </div>
+    </div>
+      
+        <div id = "parentForArtists">
+            <div id = "parentDivWithTitle" class = "Starting">
+                <h2>Starting Artist</h2> 
+            </div>
 
-        <div>
-            <h2>Your Guesses:</h2>
+            <div>
+                <h2>Your Guesses:</h2>
                 <hr>
-        </div>
+            </div>
         
-        <div id = "parentDivWithTitle" class = "Target">
-            <h2>Target Artist</h2> 
+            <div id = "parentDivWithTitle" class = "Target">
+                <h2>Target Artist</h2> 
+            </div>
         </div>
-
-      </div>
            
-      <div id = "formParent">
-        <div id = "form">
-            <input type="search" placeholder="Enter Artist Name" id="searchArtist" autocomplete="off" aria-autocomplete="none" role="combobox" list = "artistList">
-            <button type="submit" id = "submitGuess">Submit</button>
+        <div id = "formParent">
+            <div id = "form">
+                <input type="search" placeholder="Enter Artist Name" id="searchArtist" autocomplete="off" aria-autocomplete="none" role="combobox" list = "artistList">
+                <button type="submit" id = "submitGuess">Submit</button>     
+            </div>
+        <p id = "wrongNameError"></p>
         </div>
 
+        <div id = "buttonOptions">
 
-      </div>
-
-      <div id = "buttonOptions">
-
-
-        <div id="giveUpButton" class = "buttonParent">
-            <button type="button" class = "bottomButton">Give Up</button>
-
-        </div>
         
 
         <div class="buttonParent">
-            
             <div>
                 <h4 class = "buttonUsedText">Undos Remaining:</h4>
-                <span class="dot" id="undoDot1"></span>
-                <span class="dot" id="undoDot2"></span>
-                <span class="dot" id="undoDot3"></span>
-                <span class="dot" id="undoDot4"></span>
-                <span class="dot" id="undoDot5"></span>
+                <div class = "dots">
+                    <span class="dot" id="undoDot1"></span>
+                    <span class="dot" id="undoDot2"></span>
+                    <span class="dot" id="undoDot3"></span>
+                    <span class="dot" id="undoDot4"></span>
+                    <span class="dot" id="undoDot5"></span>
+                </div>
            </div>
-
            <button type="button" id = "undoButton" class = "bottomButton">Undo</button>
-           
+        </div>
 
+
+        <div class = "buttonParent">
+            <button type="button" id="giveUpButton" class = "bottomButton">Give Up</button>
         </div>
         
         <div class = "buttonParent hints">
             
             
             
-            <span class="hintPopup">Popup text...</span>
+            <span class="hintPopup"></span>
             <div id = "hintText">
                 
                 <h4 class = "buttonUsed">Hints Remaining:</h4>
-                <span class="dot" id="hintDot1"></span>
-                <span class="dot" id="hintDot2"></span>
-                <span class="dot" id="hintDot3"></span>
-                <span class="dot" id="hintDot4"></span>
-                <span class="dot" id="hintDot5"></span>
+
+                <div class = "dots">
+                    <span class="dot" id="hintDot1"></span>
+                    <span class="dot" id="hintDot2"></span>
+                    <span class="dot" id="hintDot3"></span>
+                    <span class="dot" id="hintDot4"></span>
+                    <span class="dot" id="hintDot5"></span>
+                </div>
             </div>
 
             <button type="button" id ="hintButton" class = "bottomButton" >Hint</button> 

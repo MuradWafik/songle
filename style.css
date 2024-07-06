@@ -84,12 +84,13 @@ img{
 }
 
 
-h2{
+#parentDivWithTitle h2{
   margin-bottom: 0.25em;
   margin-top: 0.25em;
 }
 
 #wrongNameError{
+  display: none;
   color: red;
 }
 
@@ -112,6 +113,14 @@ h2{
 .buttonParent{
   display: flex;
   flex-direction: column;
+  align-items: center;
+}
+
+
+
+.dots{
+  display: flex;
+  justify-content: space-around;
 }
 
 #guessesUsed{
@@ -146,6 +155,15 @@ button{
   cursor: pointer;
 }
 
+button:not(#submitGuess){
+  border-radius: 1em;
+  width: 5em;
+}
+
+button:not(#submitGuess):hover{
+  transform: scale(1.1);
+}
+
 
 .hintPopup {
   display: none;
@@ -165,7 +183,66 @@ button{
 }
 
 
-#hintText{
+/* #hintText{
   display: block;
+} */
+
+
+
+button:disabled {
+  cursor: not-allowed;
+  pointer-events: all !important;
 }
 
+input:disabled{
+  cursor: not-allowed;
+  pointer-events: all !important;
+}
+
+
+.modal {
+  display: none; 
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; 
+  background-color: rgba(0,0,0,0.4);
+
+
+}
+
+/* Modal Content/Box */
+.modal-content {
+  /* background-color: #fefefe; */
+  background-color: #242424;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+
+
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modalHeader{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0em 1em;
+}
