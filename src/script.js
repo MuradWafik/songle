@@ -160,17 +160,6 @@ function updateFeaturedArtistArray(newArtistList){
 }
 
 function addStartingArtist(artist){
-    // const divForStarter = $("#startArtistInfo");
-    // divForStarter.empty(); // emptys the html since the user can play multiple times
-
-    // let image = document.createElement("img");
-    // image.src = artist.images[0].url;
-    
-    // let artistName = document.createElement("h3");
-    // artistName.textContent = artist.name;
-
-    // divForStarter[0].appendChild(image);
-    // divForStarter[0].appendChild(artistName);
 
     $("#startArtistImg")[0].src = artist.images[0].url;
 
