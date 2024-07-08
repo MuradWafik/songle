@@ -6,6 +6,8 @@
         <script src="src/script.js" type="module"></script>
         <link rel="stylesheet" href="style.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
         <datalist id = "artistList">
   
@@ -22,31 +24,65 @@
 
 
         <div id="gameOverScreen" class="modal">
-
             <div class="modal-content">
-              <div class = "modalHeader">
+                <div class = "modalHeader">
                   <h2>Songle</h2>
+                  <h1>Game Over</h1>
                   <span class="close">&times;</span>
-            </div>
+                </div>
+                <hr class = "dashed">
+                <br>
 
-            <h3 style = "display: flex; justify-content: center; align-items: center;">Game Over</h3>
-            <h4 id = "gameOverGuesses">Total Guesses: </h4> 
-            <button type="button" id = "playAgain">Play Again</button>
+                <h3 id = "gameOverGuesses" style = "display: flex; justify-content: center; align-items: center;">Total Guesses: </h3> 
+                
+                
+
+                <div class = "popUpsContainer">
+                    
+                    <button type="button" id = "playAgain" class = "gameOverButtons">
+                        <!-- <i class="fa fa-repeat"></i>
+                        <hr style="width: 1px; height: 1cqmax; display: inline-block;"> -->
+                        <i class="fa fa-repeat"></i>
+                        Play Again
+                    </button>
+
+                <!-- <div class="line"></div> -->
+                    <hr class = "vr">
+                
+                    <button type="button" id = "viewArtistList" class = "gameOverButtons">
+                        <i class="fa fa-share-alt"></i>     
+                        Latest Artist
+                    </button>
+                </div>
+            </div>
         </div>
-    </div>
       
         <div id = "parentForArtists">
             <div id = "parentDivWithTitle" class = "Starting">
                 <h2>Starting Artist</h2> 
+                <!-- <div id = "startArtistInfo" class = "ArtistImageAndName"></div> -->
+
+                <div id="startArtistInfo" class="ArtistImageAndName">
+                    <img src="" alt="spotify image of starting artist" id = "startArtistImg">
+                    <h3 id = "startingArtistName">StartingName</h3>
+                </div>
+                
             </div>
 
             <div>
                 <h2>Your Guesses:</h2>
-                <hr>
+                <hr style = "font-size: 0.5em;" class = "dashed">
             </div>
         
             <div id = "parentDivWithTitle" class = "Target">
-                <h2>Target Artist</h2> 
+                <h2>Bonus Artist</h2> 
+                <!-- <div id = "targetArtistInfo" class = "ArtistImageAndName"></div> -->
+                <div id="targetArtistInfo" class="ArtistImageAndName">
+                    <img src="" alt="spotify image of bonus artist" id = "targetArtistImg">
+                    <h3 id = "bonusArtistName">BonusName</h3>
+                </div>
+                
+                <h4 style = "font-size: 0.5em;">+3 Score if you select an artist that has a song that features this artist</h4>
             </div>
         </div>
            
@@ -65,7 +101,7 @@
         <div class="buttonParent">
             <div>
                 <h4 class = "buttonUsedText">Undos Remaining:</h4>
-                <div class = "dots">
+                <div class = "dots" id = "undoDots">
                     <span class="dot" id="undoDot1"></span>
                     <span class="dot" id="undoDot2"></span>
                     <span class="dot" id="undoDot3"></span>
@@ -90,7 +126,7 @@
                 
                 <h4 class = "buttonUsed">Hints Remaining:</h4>
 
-                <div class = "dots">
+                <div class = "dots" id = "hintDots">
                     <span class="dot" id="hintDot1"></span>
                     <span class="dot" id="hintDot2"></span>
                     <span class="dot" id="hintDot3"></span>

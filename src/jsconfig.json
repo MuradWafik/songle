@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "ES2021" // or "ESNext"
+        "target": "ES6" // or "ESNext"
     },
     "typeAcquisition": {
         "enable": true,
