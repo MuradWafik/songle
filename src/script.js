@@ -1,6 +1,6 @@
-import { clientId, clientSecret } from "./spotifyTokens.js";
-import { Buffer } from 'buffer';
-// import { getRandomSearch, getRandomOffset, randomArtistLimit } from "./randomGeneratorFunctions.js";
+
+// console.log(BASE_URL);
+
 var jQueryScript = document.createElement('script');
 jQueryScript.setAttribute('src', 'https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js');
 document.head.appendChild(jQueryScript);
@@ -26,6 +26,8 @@ let canPressEnterToSubmitGuess = false;
 
 
 const bannedNames = new Set("ヴァリアス・アーティスト", "various artists", "soundtrack", "summer hits");
+const clientId = "337897fba53d4e6dbc7574b35828f71f";
+const clientSecret = "5c1b4007f67840cf9dfd7e486d5a3876";
 
 function getRandomSearch() { // allows getting a random artist from the spotify search
    // A list of all characters that can be chosen.
@@ -69,6 +71,33 @@ async function getToken() {
 }
 
 
+const generateRandomString = (length) => {
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const values = crypto.getRandomValues(new Uint8Array(length));
+    return values.reduce((acc, x) => acc + possible[x % possible.length], "");
+  }
+  
+const codeVerifier  = generateRandomString(64);
+
+  
+const sha256 = async (plain) => {
+    const encoder = new TextEncoder()
+    const data = encoder.encode(plain)
+    return window.crypto.subtle.digest('SHA-256', data)
+}
+
+const base64encode = (input) => {
+    return btoa(String.fromCharCode(...new Uint8Array(input)))
+      .replace(/=/g, '')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_');
+}
+
+
+
+  
+  
+
 function updateMaps(artistName, artistId){
     let filteredName = artistName.toLowerCase().trim();
     if(!artistNameToIdMap.has(filteredName)){
@@ -80,24 +109,13 @@ function updateMaps(artistName, artistId){
 }
 
 function getBonusPoints(){
-    console.log("congrats u won");
-
     totalScore += 3; // they get 3 points for getting the bonus artist
-    
-    // gameActive = false
-    // $("#submitGuess")[0].disabled = true;
-    // $("#searchArtist")[0].disabled = true;
+
 }
 
 function getFeaturedArtistArray(newArtistList){ // just returns the values, doesnt set the values
 
     const thisArtistFeatures = new Set();
-    
-    
-    // const albumsList = hadFeatures ? newArtistList.artists : newArtistList.items
-
-  
-    
           
     // loops through the appeared on from spotify checking for a match on the ids
     for (const feature in newArtistList) {
@@ -106,7 +124,6 @@ function getFeaturedArtistArray(newArtistList){ // just returns the values, does
 
         for(const artistIndex in albumsArtistList){
             const _thisArtist = albumsArtistList[artistIndex];
-
             if(!albumsArtistList.includes(_thisArtist.id) && _thisArtist.name.toLowerCase().trim() !== "various artists" && _thisArtist.name.toLowerCase().trim() !== "summer hits" && !_thisArtist.name.toLowerCase().trim().includes("soundtrack")){
                 // lastArtistCollaborations.push(_thisArtist.id);
                 thisArtistFeatures.add(_thisArtist.id)
@@ -122,18 +139,14 @@ function getFeaturedArtistArray(newArtistList){ // just returns the values, does
 }
 
 function updateFeaturedArtistArray(newArtistList){
-    // lastArtistCollaborations.length = 0;
 
     // console.log(newArtistList); // after guess the new artist list is undefined
-
     lastArtistCollaborations.clear();
     
     
     // const albumsList = hadFeatures ? newArtistList.artists : newArtistList.items
     let albumsList = newArtistList;
   
-    
-          
     // loops through the appeared on from spotify checking for a match on the ids
     for (const feature in albumsList) {
         const albumsArtistList = albumsList[feature].artists;
@@ -160,11 +173,8 @@ function updateFeaturedArtistArray(newArtistList){
 }
 
 function addStartingArtist(artist){
-
     $("#startArtistImg")[0].src = artist.images[0].url;
-
     $("#startingArtistName")[0].textContent = artist.name;
-
 
 }
 
@@ -319,13 +329,12 @@ function generateStartAndGoalArtists(){
 
 
 $(document).ready(function () {
-    getToken().then(response => {
+    getToken().then((response) => {
         localStorage.setItem("token", response.access_token);
         generateStartAndGoalArtists();
     
     });
 });
-
 
 async function getFullAppearsOnTracks(token, artistID){
     let offsetForThisRotation = 0;
@@ -362,7 +371,6 @@ async function getAppearsOnTracks(token, limit, newArtistId, offset = 0){
         });
         const list = await result.json();
         if(list.items.length !== 0){
-            // console.log("ORIGINAL")
             // console.log(list)
             
             return list; // they have featured on tracks, return the list regularly
@@ -373,18 +381,12 @@ async function getAppearsOnTracks(token, limit, newArtistId, offset = 0){
     }
 }
 
-//  $(document).ready( function(){
-//     $("#submitTeamsButton").click(function(){
-//     });
-// });
-
 function enableWrongGuessMessage(state, text = null){
     // if they entered a name that doesnt exist, or was already guessed, enables text for it, and making the message reflect the error
     if(state){
         $("#wrongNameError").fadeIn();
         $("#wrongNameError")[0].textContent = text;
     }
-
     else{
         $("#wrongNameError").fadeOut();
     }
