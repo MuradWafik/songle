@@ -60,7 +60,7 @@ async function getToken() {
     }),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ' + (Buffer.from(clientId + ':' + CLIENT_SECRET).toString('base64')),
+      'Authorization': 'Basic ' + (Buffer.from(clientId + ':' + process.env.CLIENT_SECRET).toString('base64')),
     },
   });
 
