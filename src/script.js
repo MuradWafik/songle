@@ -51,7 +51,6 @@ function getRandomOffset(){
    return Math.floor(Math.random() * randomArtistLimit); 
  }
 
-
 async function getToken() {
   const response = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
@@ -60,7 +59,7 @@ async function getToken() {
     }),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ' + (Buffer.from(clientId + ':' + process.env.CLIENT_SECRET).toString('base64')),
+      'Authorization': 'Basic ' + (Buffer.from(clientId + ':' + import.meta.env.VITE_CLIENT_SECRET).toString('base64')),
     },
   });
 
