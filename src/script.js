@@ -1,6 +1,3 @@
-
-// console.log(BASE_URL);
-
 var jQueryScript = document.createElement('script');
 jQueryScript.setAttribute('src', 'https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js');
 document.head.appendChild(jQueryScript);
@@ -27,7 +24,7 @@ let canPressEnterToSubmitGuess = false;
 
 const bannedNames = new Set("ヴァリアス・アーティスト", "various artists", "soundtrack", "summer hits");
 const clientId = "337897fba53d4e6dbc7574b35828f71f";
-const clientSecret = "5c1b4007f67840cf9dfd7e486d5a3876";
+
 
 function getRandomSearch() { // allows getting a random artist from the spotify search
    // A list of all characters that can be chosen.
@@ -63,40 +60,12 @@ async function getToken() {
     }),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ' + (Buffer.from(clientId + ':' + clientSecret).toString('base64')),
+      'Authorization': 'Basic ' + (Buffer.from(clientId + ':' + CLIENT_SECRET).toString('base64')),
     },
   });
 
   return await response.json();
-}
-
-
-const generateRandomString = (length) => {
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const values = crypto.getRandomValues(new Uint8Array(length));
-    return values.reduce((acc, x) => acc + possible[x % possible.length], "");
-  }
-  
-const codeVerifier  = generateRandomString(64);
-
-  
-const sha256 = async (plain) => {
-    const encoder = new TextEncoder()
-    const data = encoder.encode(plain)
-    return window.crypto.subtle.digest('SHA-256', data)
-}
-
-const base64encode = (input) => {
-    return btoa(String.fromCharCode(...new Uint8Array(input)))
-      .replace(/=/g, '')
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_');
-}
-
-
-
-  
-  
+}  
 
 function updateMaps(artistName, artistId){
     let filteredName = artistName.toLowerCase().trim();
@@ -476,13 +445,6 @@ $(document).ready(function () {
         $('.hintPopup').fadeIn( function(){
             $(this).css('display', 'block');
          });
-        // $(selector).fadeIn();
-
-        // const popUpText = document.createElement("span");
-
-        
-
-        // toggleHintSpan();
         
     });
 });
@@ -529,6 +491,8 @@ function undoGuess(){
     correctGuesses--;
     $("#guessesUsed")[0].textContent = `Guesses: ${correctGuesses}`;
     const token = localStorage.getItem("token"); // has to reload the data of the previous artist
+
+    $('.hintPopup').fadeOut();
     
 
 
@@ -669,6 +633,7 @@ $(document).ready(function () {
 
         generateStartAndGoalArtists(); // regenerates the artists for the user
         hideGameOverPopup();
+        enableWrongGuessMessage(false);
 
         artistHistoryID.length = 0;
     
